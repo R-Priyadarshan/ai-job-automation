@@ -1,0 +1,54 @@
+# ============================================================
+# .gitignore — AI Job Application Automation System
+# ============================================================
+
+# Python virtual environment
+venv/
+env/
+.venv/
+
+# Sensitive credentials
+.env
+
+# SQLite database (local data)
+data/jobs.db
+data/*.db
+
+# Generated PDFs and documents
+data/pdfs/
+data/resumes/
+data/cover_letters/
+
+# Log files
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ChromeDriver (auto-downloaded by webdriver-manager)
+.wdm/
+
+# ChromaDB vector store
+data/chroma/
+
+# Jupyter notebooks (if any)
+.ipynb_checkpoints/
+
+# pytest
+.pytest_cache/

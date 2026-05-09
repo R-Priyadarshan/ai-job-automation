@@ -1,0 +1,82 @@
+# ============================================================
+# config.yaml — Central Configuration File
+# All settings for the AI Job Application Automation System
+# Edit this file to match YOUR profile
+# ============================================================
+
+# ---- Ollama / AI Model ----
+ollama:
+  base_url: "http://localhost:11434"    # Ollama server URL (default)
+  model: "qwen2.5"                      # Model to use (qwen2.5 or llama3)
+  timeout: 120                          # Max seconds to wait for AI response
+  temperature: 0.7                      # Creativity (0=strict, 1=creative)
+
+# ---- Job Scraping Settings ----
+scraping:
+  max_jobs_per_site: 50                 # Max jobs to fetch per website
+  delay_between_requests: 2            # Seconds between HTTP requests (polite scraping)
+  keywords:                             # Job titles / skills to search for
+    - "machine learning"
+    - "AI engineer"
+    - "robotics"
+    - "embedded systems"
+    - "software engineer"
+    - "deep learning"
+    - "computer vision"
+    - "NLP engineer"
+    - "MLOps"
+    - "data scientist"
+  target_locations:                     # Leave empty [] for remote/all
+    - "remote"
+    - "India"
+    - "USA"
+
+# ---- User Profile (YOUR INFO) ----
+user:
+  name: "R Priyadarshan"
+  email: "priyadarshanr01@gmail.com"
+  phone: "+91-XXXXXXXXXX"
+  linkedin: "https://linkedin.com/in/yourprofile"
+  github: "https://github.com/yourusername"
+  portfolio: "https://yourportfolio.com"
+  location: "India"
+  resume_path: "data/resumes/resume.pdf"         # Your uploaded resume PDF
+
+# ---- ATS Score Thresholds ----
+ats:
+  minimum_score: 60          # Only apply if ATS score >= this
+  high_match_threshold: 80   # Highlight jobs with score >= this
+
+# ---- Database ----
+database:
+  path: "data/jobs.db"       # SQLite database file path
+
+# ---- PDF Output ----
+pdf:
+  output_dir: "data/pdfs"           # Where generated PDFs are saved
+  resume_template: "professional"   # Style: professional | modern | minimal
+  font: "Helvetica"                 # Font for PDFs
+
+# ---- Telegram Notifications (optional) ----
+telegram:
+  enabled: false                # Set to true to enable notifications
+  bot_token: "YOUR_BOT_TOKEN"  # Get from @BotFather on Telegram
+  chat_id: "YOUR_CHAT_ID"      # Your Telegram chat ID
+
+# ---- Email Settings (for recruiter drafts) ----
+email:
+  smtp_server: "smtp.gmail.com"
+  smtp_port: 587
+  sender_email: "your.email@gmail.com"
+  # Store password in .env file, NOT here!
+
+# ---- Scheduler ----
+scheduler:
+  run_hour: 8          # Run daily at this hour (24h format)
+  run_minute: 0        # Run at this minute
+
+# ---- Logging ----
+logging:
+  level: "INFO"                  # DEBUG | INFO | WARNING | ERROR
+  log_file: "logs/app.log"       # Log file path
+  max_size_mb: 10                # Rotate log after this size

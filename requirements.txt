@@ -1,0 +1,61 @@
+# ============================================================
+# AI Job Application Automation System - Requirements
+# All packages are FREE and open source
+# ============================================================
+
+# --- Web Scraping ---
+requests==2.31.0          # HTTP requests for scraping
+beautifulsoup4==4.12.3    # HTML parsing
+lxml==5.1.0               # Fast HTML/XML parser (used by BS4)
+fake-useragent==1.4.0     # Rotate user agents to avoid blocks
+selenium==4.18.1          # For dynamic pages (LinkedIn)
+webdriver-manager==4.0.1  # Auto-manage ChromeDriver
+
+# --- Data Handling ---
+pandas==2.2.1             # DataFrame operations
+numpy==1.26.4             # Numerical operations
+
+# --- Database ---
+# sqlite3 is built into Python (no install needed)
+
+# --- AI / LLM ---
+ollama==0.1.8             # Python client for Ollama local models
+
+# --- PDF Generation ---
+reportlab==4.1.0          # Create professional PDFs
+fpdf2==2.7.9              # Lightweight PDF alternative
+
+# --- Dashboard ---
+streamlit==1.32.0         # Web dashboard
+plotly==5.19.0            # Charts and graphs
+altair==5.2.0             # Declarative visualization
+
+# --- NLP / Skill Matching ---
+scikit-learn==1.4.1       # TF-IDF vectorizer for semantic matching
+nltk==3.8.1               # Natural language processing
+spacy==3.7.4              # Advanced NLP (skill extraction)
+
+# --- Utilities ---
+python-dotenv==1.0.1      # Load config from .env file
+schedule==1.2.1           # Python-based job scheduler
+loguru==0.7.2             # Beautiful logging
+rich==13.7.0              # Rich terminal output
+pyyaml==6.0.1             # YAML config files
+python-dateutil==2.9.0    # Date parsing utilities
+
+# --- Email ---
+smtplib                   # Built-in Python (no install needed)
+
+# --- Telegram Notifications (optional) ---
+python-telegram-bot==21.1.1
+
+# --- Resume Parsing ---
+pypdf2==3.0.1             # Read existing PDF resumes
+python-docx==1.1.0        # Read .docx resume files
+pdfminer.six==20231228    # Extract text from PDFs
+
+# --- Vector Database (local, offline) ---
+chromadb==0.4.22          # Local vector store for semantic search
+
+# --- Sentence Embeddings (local) ---
+sentence-transformers==2.6.1  # Local embeddings (no API needed)
