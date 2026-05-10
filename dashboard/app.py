@@ -40,8 +40,18 @@ import plotly.graph_objects as go    # Advanced charts
 from datetime import datetime
 
 # Add project root to Python path
-# This allows importing from src/ when running from dashboard/
 sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# ---- Cloud vs Local detection ----
+# On Streamlit Cloud, load secrets into env vars
+IS_CLOUD = os.getenv('STREAMLIT_SHARING_MODE') or os.getenv('IS_CLOUD', '')
+try:
+    if hasattr(st, 'secrets') and st.secrets:
+        for k, v in st.secrets.items():
+            if isinstance(v, str):
+                os.environ.setdefault(k, v)
+except Exception:
+    pass
 
 from src.utils.config_loader import load_config
 from src.database.db_manager import DatabaseManager
