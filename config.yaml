@@ -68,7 +68,7 @@ email:
   smtp_server: "smtp.gmail.com"
   smtp_port: 587
   sender_email: "priyadarshanr01@gmail.com"   # Your Gmail address
-  auto_send: false                             # Set true to actually send emails
+  auto_send: true                              # Set true to actually send emails
   # Store password in .env as: EMAIL_PASSWORD=your_16char_app_password
   # Get App Password: myaccount.google.com → Security → App Passwords
   fallback_to: ""                              # Fallback email if none found in job listing
