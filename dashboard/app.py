@@ -167,7 +167,7 @@ with st.sidebar:
     # Navigation menu
     page = st.selectbox(
         "Navigate",
-        ["📋 Job Listings", "📊 Analytics", "📄 Documents", "✅ Applications", "⚙️ Settings"],
+        ["📋 Job Listings", "📊 Analytics", "📄 Documents", "✅ Applications", "📧 Auto-Apply", "⚙️ Settings"],
         label_visibility="collapsed",
     )
 
@@ -657,6 +657,165 @@ elif page == "✅ Applications":
             db.update_application_status(app_id, new_status)
             st.success(f"✅ Status updated to '{new_status}'!")
             st.rerun()
+
+
+# ============================================================
+# PAGE: AUTO-APPLY (Cold Internship Emails)
+# ============================================================
+elif page == "📧 Auto-Apply":
+    st.markdown("## 📧 Auto-Apply — Cold Internship Emails")
+
+    if not config:
+        st.stop()
+
+    # ---- Email Config Status ----
+    email_cfg = config.get('email', {})
+    sender    = email_cfg.get('sender_email', '')
+    auto_send = email_cfg.get('auto_send', False)
+
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    has_password = bool(os.getenv('EMAIL_PASSWORD', ''))
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        if sender:
+            st.success(f"✅ Sender: {sender}")
+        else:
+            st.error("❌ sender_email not set in config.yaml")
+    with col2:
+        if has_password:
+            st.success("✅ App Password: configured")
+        else:
+            st.error("❌ EMAIL_PASSWORD missing in .env")
+    with col3:
+        if auto_send:
+            st.success("✅ Auto-send: ENABLED")
+        else:
+            st.warning("⚠️ Auto-send: DISABLED (dry-run only)")
+
+    st.markdown("---")
+
+    # ---- Setup Instructions ----
+    if not has_password or not sender:
+        with st.expander("📖 Setup Instructions", expanded=True):
+            st.markdown("""
+**Step 1 — Enable Gmail App Password:**
+1. Go to [myaccount.google.com](https://myaccount.google.com) → Security
+2. Enable **2-Step Verification** (required)
+3. Go to **App Passwords** → Select "Mail" → Generate
+4. Copy the 16-character password
+
+**Step 2 — Add to `.env` file** (in project root):
+```
+EMAIL_PASSWORD=your16charpassword
+```
+
+**Step 3 — Update `config.yaml`:**
+```yaml
+email:
+  sender_email: "priyadarshanr01@gmail.com"
+  auto_send: true   # set to true when ready to send
+```
+
+**Step 4 — Come back here and run!**
+            """)
+
+    st.markdown("### 🎯 Pipeline Settings")
+
+    col_a, col_b = st.columns(2)
+    with col_a:
+        dry_run = st.toggle(
+            "🔍 Dry Run (preview only — don't send)",
+            value=not auto_send,
+            help="Enable to preview emails without sending. Disable to actually send."
+        )
+        limit = st.slider("Max jobs to process", 1, 50, 10)
+
+    with col_b:
+        min_score = config.get('ats', {}).get('minimum_score', 60)
+        st.info(f"**ATS Threshold:** {min_score}/100 (only emails jobs above this score)")
+        st.info(f"**Daily Limit:** {email_cfg.get('daily_limit', 20)} emails/day")
+        st.info(f"**Delay:** {email_cfg.get('delay_seconds', 30)}s between emails")
+
+    st.markdown("---")
+
+    # ---- Run Button ----
+    btn_label = "👁️ Preview Cold Emails (Dry Run)" if dry_run else "🚀 Send Cold Emails NOW"
+    btn_type  = "secondary" if dry_run else "primary"
+
+    if st.button(btn_label, type=btn_type, use_container_width=True):
+        if not dry_run and not has_password:
+            st.error("❌ Cannot send — EMAIL_PASSWORD not set in .env file!")
+        else:
+            with st.spinner("Running auto-apply pipeline... this may take a few minutes..."):
+                try:
+                    import subprocess
+                    cmd = ["python", "main.py", "--auto-apply"]
+                    if dry_run:
+                        cmd.append("--dry-run")
+                    result = subprocess.run(
+                        cmd,
+                        capture_output=True, text=True, timeout=600,
+                        cwd=str(Path(__file__).parent.parent)
+                    )
+                    if result.returncode == 0:
+                        if dry_run:
+                            st.success("✅ Preview generated! See output below.")
+                        else:
+                            st.success("✅ Cold emails sent! Check Applications tab.")
+                        st.code(result.stdout[-3000:] if len(result.stdout) > 3000 else result.stdout)
+                    else:
+                        st.error("Pipeline failed:")
+                        st.code(result.stderr[-2000:])
+                except subprocess.TimeoutExpired:
+                    st.error("Timed out after 10 minutes. Try with fewer jobs.")
+                except Exception as e:
+                    st.error(f"Error: {e}")
+
+    st.markdown("---")
+
+    # ---- Show recent email drafts from DB ----
+    st.markdown("### 📬 Recent Email Drafts")
+    applications = db.get_all_applications()
+    email_apps   = [a for a in applications if a.get('email_draft')]
+
+    if not email_apps:
+        st.info("No email drafts yet. Run the pipeline above to generate them.")
+    else:
+        for app in email_apps[:10]:
+            with st.expander(f"📧 {app.get('title')} @ {app.get('company')} — {app.get('status', 'pending')}"):
+                draft = app.get('email_draft', '')
+                lines = draft.split('\n')
+                subject_line = next((l for l in lines if l.startswith('Subject:')), '')
+                st.markdown(f"**{subject_line}**")
+                st.text_area(
+                    "Email Body",
+                    value=draft,
+                    height=200,
+                    key=f"draft_{app.get('id')}",
+                    label_visibility="collapsed"
+                )
+                col1, col2 = st.columns(2)
+                with col1:
+                    if app.get('resume_path') and Path(app['resume_path']).exists():
+                        with open(app['resume_path'], 'rb') as f:
+                            st.download_button(
+                                "⬇️ Resume PDF",
+                                data=f.read(),
+                                file_name="resume.pdf",
+                                key=f"res_{app.get('id')}"
+                            )
+                with col2:
+                    if app.get('cover_letter_path') and Path(app['cover_letter_path']).exists():
+                        with open(app['cover_letter_path'], 'rb') as f:
+                            st.download_button(
+                                "⬇️ Cover Letter PDF",
+                                data=f.read(),
+                                file_name="cover_letter.pdf",
+                                key=f"cl_{app.get('id')}"
+                            )
 
 
 # ============================================================

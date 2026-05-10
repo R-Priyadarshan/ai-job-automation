@@ -7,7 +7,7 @@
 # ---- Ollama / AI Model ----
 ollama:
   base_url: "http://localhost:11434"    # Ollama server URL (default)
-  model: "qwen2.5"                      # Model to use (qwen2.5 or llama3)
+  model: "deepseek-coder:latest"                # Model to use
   timeout: 120                          # Max seconds to wait for AI response
   temperature: 0.7                      # Creativity (0=strict, 1=creative)
 
@@ -63,12 +63,17 @@ telegram:
   bot_token: "YOUR_BOT_TOKEN"  # Get from @BotFather on Telegram
   chat_id: "YOUR_CHAT_ID"      # Your Telegram chat ID
 
-# ---- Email Settings (for recruiter drafts) ----
+# ---- Email Settings (auto cold-mail outreach) ----
 email:
   smtp_server: "smtp.gmail.com"
   smtp_port: 587
-  sender_email: "your.email@gmail.com"
-  # Store password in .env file, NOT here!
+  sender_email: "priyadarshanr01@gmail.com"   # Your Gmail address
+  auto_send: false                             # Set true to actually send emails
+  # Store password in .env as: EMAIL_PASSWORD=your_16char_app_password
+  # Get App Password: myaccount.google.com → Security → App Passwords
+  fallback_to: ""                              # Fallback email if none found in job listing
+  daily_limit: 20                              # Max emails per day (safety cap)
+  delay_seconds: 30                            # Seconds between each email
 
 # ---- Scheduler ----
 scheduler:

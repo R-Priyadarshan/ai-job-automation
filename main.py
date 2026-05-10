@@ -62,6 +62,7 @@ from src.ai_engine.resume_optimizer import ResumeOptimizer
 from src.ai_engine.cover_letter_generator import CoverLetterGenerator
 from src.generators.pdf_generator import PDFGenerator
 from src.utils.notifier import TelegramNotifier
+from src.auto_apply.auto_applier import AutoApplier
 
 
 # Create Rich console for beautiful output
@@ -389,6 +390,10 @@ Examples:
                         help='Only run the job scrapers, skip AI analysis')
     parser.add_argument('--analyze-only', action='store_true',
                         help='Only run AI analysis on existing jobs in DB')
+    parser.add_argument('--auto-apply', action='store_true',
+                        help='Generate cold emails and send internship applications')
+    parser.add_argument('--dry-run', action='store_true',
+                        help='Preview cold emails without actually sending (use with --auto-apply)')
     parser.add_argument('--stats', action='store_true',
                         help='Show database statistics and exit')
     parser.add_argument('--job-id', type=int,
@@ -403,10 +408,10 @@ Examples:
     # ---- Print Banner ----
     banner = (
         "\n[bold blue]"
-        "\n╔═══════════════════════════════════════════════════╗"
-        "\n║     🤖 AI JOB APPLICATION AUTOMATION SYSTEM       ║"
-        "\n║     100% Local • Zero Cost • Powered by Ollama    ║"
-        "\n╚═══════════════════════════════════════════════════╝"
+        "\n+===================================================+"
+        "\n|   AI JOB APPLICATION AUTOMATION SYSTEM            |"
+        "\n|   100% Local - Zero Cost - Powered by Ollama      |"
+        "\n+===================================================+"
         "\n[/bold blue]"
     )
     console.print(banner)
@@ -458,6 +463,29 @@ Examples:
             console.print(f"[red]❌ Job ID {args.job_id} not found in database[/red]")
             return
         run_ai_analysis(config, [job])
+        return
+
+    # ---- Handle --auto-apply flag ----
+    if args.auto_apply:
+        dry = args.dry_run  # --dry-run flag previews without sending
+        console.print(
+            "\n[bold blue]📧 Auto-Apply: Cold Internship Email Pipeline[/bold blue]"
+        )
+        if dry:
+            console.print("[yellow]🔍 DRY RUN — emails will be generated but NOT sent[/yellow]")
+        else:
+            console.print("[green]🚀 LIVE MODE — emails WILL be sent[/green]")
+
+        applier = AutoApplier(config)
+        stats = applier.run(dry_run=dry)
+
+        if dry and stats.get('previews'):
+            console.print("\n[bold]📋 Email Previews:[/bold]")
+            for i, preview in enumerate(stats['previews'][:5], 1):
+                console.print(f"\n[cyan]── Preview {i}: {preview['company']} ──[/cyan]")
+                console.print(f"[green]To:[/green]      {preview.get('to_email') or 'not found'}")
+                console.print(f"[green]Subject:[/green] {preview['subject']}")
+                console.print(f"[green]Body:[/green]\n{preview['body'][:400]}...")
         return
 
     # ---- Full Pipeline or Partial ----

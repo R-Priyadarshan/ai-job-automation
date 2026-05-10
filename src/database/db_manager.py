@@ -378,6 +378,22 @@ class DatabaseManager:
         """, (job_id, doc_type, file_path))
         self.conn.commit()
 
+    def get_generated_docs(self, job_id: int) -> list[dict]:
+        """
+        Returns all generated documents for a specific job.
+
+        Args:
+            job_id: The job's database ID.
+
+        Returns:
+            List of generated doc dicts with doc_type and file_path.
+        """
+        self.cursor.execute(
+            "SELECT * FROM generated_docs WHERE job_id = ?",
+            (job_id,)
+        )
+        return [dict(row) for row in self.cursor.fetchall()]
+
     # =====================================================
     # STATISTICS
     # =====================================================
