@@ -285,6 +285,19 @@ if page == "📋 Job Listings":
             step=5,
         )
 
+    # ---- Location filter ----
+    col4, col5 = st.columns([3, 3])
+    with col4:
+        location_filter = st.text_input(
+            "📍 Location filter",
+            placeholder="e.g. India, Remote, USA, Bangalore...",
+        )
+    with col5:
+        job_type_filter = st.selectbox(
+            "Job Type",
+            ["All", "Internship", "Full-time", "Part-time", "Contract", "Remote"],
+        )
+
     # ---- Fetch Jobs ----
     all_jobs = db.get_all_jobs(limit=200, keyword=search if search else None)
 
@@ -295,6 +308,25 @@ if page == "📋 Job Listings":
     # Apply ATS score filter
     if min_score_filter > 0:
         all_jobs = [j for j in all_jobs if (j.get('ats_score') or 0) >= min_score_filter]
+
+    # Apply location filter
+    if location_filter:
+        loc_lower = location_filter.lower()
+        all_jobs = [
+            j for j in all_jobs
+            if loc_lower in (j.get('location') or '').lower()
+            or loc_lower in (j.get('description') or '').lower()
+        ]
+
+    # Apply job type filter
+    if job_type_filter != "All":
+        type_lower = job_type_filter.lower()
+        all_jobs = [
+            j for j in all_jobs
+            if type_lower in (j.get('job_type') or '').lower()
+            or type_lower in (j.get('title') or '').lower()
+            or type_lower in (j.get('description') or '').lower()
+        ]
 
     st.markdown(f"*Showing {len(all_jobs)} jobs*")
 
